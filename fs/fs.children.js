@@ -297,4 +297,21 @@ fs.watchFile('./temp/heyo', (curr, prev) => {
 // 文件删除并恢复的行为会使得curr/prev相同 -- 其次是重命名为原名称时候
 
 
-// fs.write(td, buffer, ...offset, len, position, callback)
+// fs.write(td, buffer, ...offset, len, position, callback(err, byteWritten, buffer)) // 写入buffer到指定文件
+// fs.write(td, string, ...position, ...encoding, callback(err, written, string))  // 写入string到fd指定的文件
+// 如果对同一文件执行多次长时间写入不等待回调不安全，可以用fs.createWriteStream,以上两个需要td
+
+
+// fs.writeFile(file, data, ...options, callback(err))  //  异步的写入数据到文件，如果已经存在，则替代文件
+// fs.writeFile('message.txt', 'hey there', (err) => {
+//     if (err) {
+//         throw err;
+//     }
+//     console.log('this file is saved')
+// })
+// 如果file指定为fd文件描述符，则它不会被自动关闭
+
+
+// fs.writeFileSync(file, data, ...options)
+// fs.writeSync(fd, buffer, ...offset, ...length, ...position)
+// fs.writeSync(fd, string, ...position, ...encoding)
