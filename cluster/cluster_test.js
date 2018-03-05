@@ -3,27 +3,27 @@ const http = require('http');
 const numCPUS = require('os').cpus().length;
 
 // 分发工作进程实例
-// if (cluster.isMaster) {
-//     console.log(`主进程 ${process.pid} 运作良好`);
+if (cluster.isMaster) {
+    console.log(`主进程 ${process.pid} 运作良好`);
 
-//     // 衍生工作进程？
-//     for (let i = 0; i < numCPUS; i++) {
-//         cluster.fork();
-//     }
+    // 衍生工作进程？
+    for (let i = 0; i < numCPUS; i++) {
+        cluster.fork();
+    }
 
-//     cluster.on('exit', (worker, code, signal) => {
-//         console.log(`工作进程 ${worker.process.pid} 已退出`);
-//     });
-// } else {
-//     // 工作进程可以共享任何TCP连接
-//     // 这里共享的是一个HTTP服务器
-//     http.createServer((req,res) => {
-//         res.writeHead(200);
-//         res.end('Hey there' + process.pid);
-//     }).listen(process.pid);
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`工作进程 ${worker.process.pid} 已退出`);
+    });
+} else {
+    // 工作进程可以共享任何TCP连接
+    // 这里共享的是一个HTTP服务器
+    http.createServer((req,res) => {
+        res.writeHead(200);
+        res.end('Hey there' + process.pid);
+    }).listen(process.pid);
 
-//     console.log(`工作进程 ${process.pid} 启动`);
-// }
+    console.log(`工作进程 ${process.pid} 启动`);
+}
 
 // 通过主进程的消息来关闭工作进程
 // if (cluster.isMaster) {
@@ -71,43 +71,43 @@ const numCPUS = require('os').cpus().length;
 
 
 // 利用message 机制来实现主进程统计cluster中请求数量的功能 为何每次都是+2？
-  if (cluster.isMaster) {
+  // if (cluster.isMaster) {
 
-    // 跟踪 http 请求
-    let numReqs = 0;
-    setInterval(() => {
-      console.log(`numReqs = ${numReqs}`);
-    }, 1000);
+  //   // 跟踪 http 请求
+  //   let numReqs = 0;
+  //   setInterval(() => {
+  //     console.log(`numReqs = ${numReqs}`);
+  //   }, 1000);
   
-    // 计算请求数目
-    function messageHandler(msg) {
-      if (msg.cmd && msg.cmd === 'notifyRequest') {
-        numReqs += 1;
-      }
-    }
+  //   // 计算请求数目
+  //   function messageHandler(msg) {
+  //     if (msg.cmd && msg.cmd === 'notifyRequest') {
+  //       numReqs += 1;
+  //     }
+  //   }
   
-    // 启动 worker 并监听包含 notifyRequest 的消息
-    // const numCPUs = require('os').cpus().length;
-    for (let i = 0; i < numCPUS; i++) {
-      cluster.fork();
-    }
+  //   // 启动 worker 并监听包含 notifyRequest 的消息
+  //   // const numCPUs = require('os').cpus().length;
+  //   for (let i = 0; i < numCPUS; i++) {
+  //     cluster.fork();
+  //   }
 
-    // 遍历绑定监听事件
-    for (const id in cluster.workers) {
-      cluster.workers[id].on('message', messageHandler);
-    }
+  //   // 遍历绑定监听事件
+  //   for (const id in cluster.workers) {
+  //     cluster.workers[id].on('message', messageHandler);
+  //   }
   
-  } else {
+  // } else {
   
-    // Worker 进程有一个http服务器
-    http.Server((req, res) => {
-      res.writeHead(200);
-      res.end('hello world\n');
+  //   // Worker 进程有一个http服务器
+  //   http.Server((req, res) => {
+  //     res.writeHead(200);
+  //     res.end('hello world\n');
   
-      // 通知 master 进程接收到了请求
-      process.send({ cmd: 'notifyRequest' });
-    }).listen(8000);
-  }
+  //     // 通知 master 进程接收到了请求
+  //     process.send({ cmd: 'notifyRequest' });
+  //   }).listen(8000);
+  // }
 
 
 
