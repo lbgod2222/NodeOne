@@ -28,6 +28,40 @@ ls.on('close', (code) => {
 
 
 // window 平台与其他平台的不同
+// execFile() => in linux better
+// exec() => in windows better
+
+// 仅限 Windows 系统 use the 
+const { spawn } = require('child_process');
+const bat = spawn('cmd.exe', ['/c', 'my.bat']); // use spawn to active cmd
+
+bat.stdout.on('data', (data) => {
+  console.log(data.toString());
+});
+
+bat.stderr.on('data', (data) => {
+  console.log(data.toString());
+});
+
+bat.on('exit', (code) => {
+  console.log(`子进程退出码：${code}`);
+});
+// 或
+const { exec } = require('child_process');
+exec('my.bat', (err, stdout, stderr) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+  console.log(stdout);
+});
+
+// 文件名带有空格的脚本：
+const bat = spawn('"my script.cmd"', ['a', 'b'], { shell: true });
+// 或：
+exec('"my script.cmd" a b', (err, stdout, stderr) => {
+  // ...
+});
 
 
-// 此块暂且搁置，实际应用冲刷
+// child_process.exec(command, )
