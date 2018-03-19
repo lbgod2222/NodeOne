@@ -199,4 +199,15 @@ const srv = http.createServer( (req, res) => {
 
 
   // http.Server 类
-  
+  // checkContinue => 当接收到带有HTTP EXPECT: 100-CONTINUE 请求头时触发， 客户端应继续请求， 调用response.writeContinue  request事件不会触发
+
+  // checkExpectation  接收到HTTP Expect请求头时触发 request事件不会触发
+
+  // clientError 客户端触发error事件， 会被传到这里， 该监视器负责关闭/销毁底层socket， 可以温和的响应关闭
+    const server = http.createServer((req, res) => {
+        res.end();
+    });
+    server.on('clientError', (err, socket) => {
+        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    });
+    server.listen(8000);
